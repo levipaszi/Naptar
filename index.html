@@ -5,222 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Naptár Bevétel Tervező</title>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --accent: #3498db;
-            --bg: #f8f9fa;
-            --card: #ffffff;
-            --text: #333333;
-        }
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 10px;
-        }
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-        }
-        header {
-            background-color: var(--primary);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .header-buttons {
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        .card {
-            background: var(--card);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-        }
-        h2 { 
-            margin-top: 0; 
-            font-size: 1.2rem;
-            color: var(--primary); 
-            border-bottom: 2px solid #eee; 
-            padding-bottom: 8px; 
-        }
+        :root { --primary: #2c3e50; --accent: #3498db; --bg: #f8f9fa; --card: #ffffff; --text: #333333; }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; }
+        .container { max-width: 100%; margin: 0 auto; }
+        header { background-color: var(--primary); color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; }
+        .card { background: var(--card); padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        h2 { margin-top: 0; font-size: 1.2rem; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 8px; }
         .form-group { margin-bottom: 12px; }
         label { display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem; }
-        
-        /* Mobilra optimalizált bevitelek: nagy érintési felület */
-        input[type="text"], input[type="number"], input[type="date"] {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px; /* Megakadályozza az iOS automatikus zoomolását */
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            background: #fff;
-            -webkit-appearance: none;
-        }
-        
-        /* Nagy, ujjal könnyen eltalálható gombok */
-        button {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 14px 20px;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-            transition: background 0.2s;
-            display: block;
-            margin-bottom: 5px;
-        }
-        button:active { filter: brightness(0.9); }
+        input[type="number"], input[type="date"], input[type="text"] { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; background: #fff; }
+        button { background-color: var(--accent); color: white; border: none; padding: 14px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
         button.btn-success { background-color: #2ecc71; }
         button.btn-danger { background-color: #e74c3c; }
-        
-        .header-buttons button {
-            width: auto;
-            padding: 10px 15px;
-            font-size: 14px;
-            margin: 0;
-        }
-        
-        .result-box {
-            font-size: 28px;
-            font-weight: bold;
-            color: #2c3e50;
-            background: #e8f4f8;
-            padding: 20px;
-            border-radius: 6px;
-            text-align: center;
-            margin-top: 10px;
-        }
-        
-        /* Mobilbarát fülek */
-        .tabs { 
-            display: flex; 
-            gap: 5px; 
-            margin-bottom: 12px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-        }
-        .tab-btn { 
-            background: #e0e0e0; 
-            color: #333; 
-            padding: 10px 12px; 
-            font-size: 14px; 
-            flex: 1; 
-            white-space: nowrap;
-            margin: 0;
-        }
+        .result-box { font-size: 28px; font-weight: bold; color: #2c3e50; background: #e8f4f8; padding: 20px; border-radius: 6px; text-align: center; margin-top: 10px; }
+        .status-badge { display: block; text-align: center; padding: 8px; background: #e2e8f0; border-radius: 4px; font-size: 14px; margin-bottom: 10px; font-weight: 500; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 12px; overflow-x: auto; }
+        .tab-btn { background: #e0e0e0; color: #333; padding: 10px 12px; font-size: 14px; flex: 1; white-space: nowrap; border-radius: 6px; border: none; }
         .tab-btn.active { background: var(--primary); color: white; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        
-        .name-list-container {
-            max-height: 250px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            padding: 8px;
-            border-radius: 6px;
-            background: #fafafa;
-        }
-        .name-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 5px;
-            border-bottom: 1px solid #eee;
-            font-size: 15px;
-        }
-        .name-item button {
-            width: auto;
-            padding: 6px 12px;
-            margin: 0;
-            font-size: 12px;
-        }
-        .unknown-item {
-            background: #fff3cd;
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .unknown-item-header {
-            font-size: 16px;
-            font-weight: bold;
-        }
-        .btn-group { 
-            display: flex; 
-            gap: 8px; 
-        }
-        .btn-group button {
-            flex: 1;
-            margin: 0;
-            padding: 10px;
-            font-size: 14px;
-        }
-        #status_text {
-            font-size: 14px;
-            text-align: center;
-            color: #555;
-            line-height: 1.4;
-        }
+        .name-list-container { max-height: 250px; overflow-y: auto; border: 1px solid #ddd; padding: 8px; border-radius: 6px; background: #fafafa; }
+        .name-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid #eee; font-size: 15px; }
+        .name-item button { width: auto; padding: 6px 12px; font-size: 12px; }
+        .unknown-item { background: #fff3cd; padding: 10px; margin-bottom: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 8px; }
+        .btn-group { display: flex; gap: 8px; }
+        .btn-group button { flex: 1; padding: 10px; font-size: 14px; }
     </style>
+    <!-- Google API gapi és gis parancsfájlok betöltése -->
+    <script src="https://apis.google.com/js/api.js" async defer onload="gapiLoaded()"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1 style="margin:0; font-size: 1.5rem;">Naptár Bevétel Tervező</h1>
-        <div class="header-buttons">
-            <button id="auth_button" onclick="handleAuthClick()">Bejelentkezés</button>
-            <button id="signout_button" onclick="handleSignoutClick()" style="display:none; background:#95a5a6;">Kijelentkezés</button>
-        </div>
+        <h1 style="margin:0; font-size: 1.5rem;">Élő Naptár Bevétel Tervező</h1>
+        <button id="auth_button" style="display: none; margin-top: 10px;" class="btn-success" onclick="handleAuthClick()">Bejelentkezés</button>
+        <button id="signout_button" style="display: none; margin-top: 10px;" class="btn-danger" onclick="handleSignoutClick()">Kijelentkezés</button>
     </header>
 
-    <!-- FŐ PANEL: VÁRHATÓ BEVÉTEL -->
     <div class="card">
-        <h2>Várható Hátralévő Bevétel</h2>
-        <p id="status_text">Kérlek jelentkezz be a Google fiókodba a számításhoz.</p>
-        <div class="result-box" id="total_revenue">0 Ft</div>
-        <div style="margin-top: 10px; font-size: 14px; color: #666; text-align: center;" id="stats_summary"></div>
-        <button class="btn-success" onclick="fetchCalendarEvents()" id="calc_btn" style="display:none; margin-top: 15px;">Adatok Frissítése</button>
+        <span id="status_text" class="status-badge">Google API betöltése...</span>
+        <button id="refresh_button" style="display: none;" onclick="listUpcomingEvents()">Adatok Frissítése</button>
     </div>
 
-    <!-- IDŐSZAK ÉS ÁRAK -->
+    <!-- EREDMÉNY -->
+    <div class="card">
+        <h2>Várható Hátralévő Bevétel</h2>
+        <div class="result-box" id="total_revenue">0 Ft</div>
+        <div style="margin-top: 10px; font-size: 14px; color: #666; text-align: center;" id="stats_summary"></div>
+    </div>
+
+    <!-- BEÁLLÍTÁSOK -->
     <div class="card">
         <h2>Időszak & Árak Beállítása</h2>
         <div class="form-group">
             <label for="start_date">Kezdő nap:</label>
-            <input type="date" id="start_date">
+            <input type="date" id="start_date" onchange="triggerRecalc()">
         </div>
         <div class="form-group">
             <label for="end_date">Záró nap:</label>
-            <input type="date" id="end_date">
+            <input type="date" id="end_date" onchange="triggerRecalc()">
         </div>
         <div class="form-group">
             <label for="price_male">Férfi Ár (Ft):</label>
-            <input type="number" id="price_male" value="4000">
+            <input type="number" id="price_male" value="4000" onchange="triggerRecalc()">
         </div>
         <div class="form-group">
             <label for="price_female">Női Ár (Ft):</label>
-            <input type="number" id="price_female" value="7000">
+            <input type="number" id="price_female" value="7000" onchange="triggerRecalc()">
         </div>
     </div>
 
-    <!-- NÉV ADATBÁZIS MEGNÉZÉSE ÉS KIEGÉSZÍTÉSE -->
+    <!-- NEVEK MENEDZSELÉSE -->
     <div class="card">
         <h2>Név Adatbázis Kezelő</h2>
         <div class="tabs">
@@ -229,168 +87,104 @@
             <button class="tab-btn" onclick="switchTab('female')">Nők (<span id="count_female">0</span>)</button>
         </div>
 
-        <div id="tab_unknown" class="tab-content active">
-            <div id="unknown_list" class="name-list-container"></div>
-        </div>
-
-        <div id="tab_male" class="tab-content">
-            <div id="male_list" class="name-list-container"></div>
-        </div>
-
-        <div id="tab_female" class="tab-content">
-            <div id="female_list" class="name-list-container"></div>
-        </div>
+        <div id="tab_unknown" class="tab-content active"><div id="unknown_list" class="name-list-container"></div></div>
+        <div id="tab_male" class="tab-content"><div id="male_list" class="name-list-container"></div></div>
+        <div id="tab_female" class="tab-content"><div id="female_list" class="name-list-container"></div></div>
     </div>
 
-    <!-- API KULCSOK PANEL -->
-    <div class="card">
+    <!-- KULCSOK BEÁLLÍTÁSA -->
+    <div class="card" style="background: #f1f5f9;">
         <h2>Google API Kulcsok beállítása</h2>
         <div class="form-group">
-            <label for="client_id">Google Client ID:</label>
-            <input type="text" id="client_id" placeholder="Client ID beillesztése">
+            <label for="client_id_input">Google Client ID:</label>
+            <input type="text" id="client_id_input" placeholder="...apps.googleusercontent.com">
         </div>
         <div class="form-group">
-            <label for="api_key">Google API Key:</label>
-            <input type="text" id="api_key" placeholder="API Key beillesztése">
+            <label for="api_key_input">Google API Key:</label>
+            <input type="text" id="api_key_input" placeholder="AIzaSy...">
         </div>
-        <button onclick="saveApiKeys()">Kulcsok Mentése</button>
+        <button onclick="saveKeys()">Kulcsok Mentése</button>
     </div>
 </div>
 
-<!-- Google API szkriptek -->
-<script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-<script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
-
 <script>
-    const defaultMaleNames = ["bence", "máté", "levente", "david", "dávid", "dominik", "balázs", "gábor", "peter", "péter", "tamás", "zoltán", "istván", "andrás", "laszlo", "lászló", "józsef", "jános", "attila", "sándor", "milan", "milán", "adam", "ádám", "dániel", "daniel", "marcell", "krisztián", "gergő", "gergely", "bálint", "norbert", "patrik", "richárd", "richard", "olivér", "kristóf", "martin", "zalán", "áron", "aron", "kevin", "botond", "alex", "benedek", "szabolcs", "roland", "viktor", "imre", "lajos", "tibor", "ferenc", "györgy", "béla", "gyula", "pál", "szilárd", "zsolt", "szilveszter", "róbert", "robert", "dezső", "jenő", "miklós", "károly", "géza", "csaba", "krisztofer", "nándor", "nandor", "anton", "artúr", "artur", "barna", "barnabás", "bertalan", "donát", "emil", "erik", "ernő", "felix", "félix"];
-    const defaultFemaleNames = ["anna", "hanna", "zoé", "zoe", "léna", "lena", "luca", "emma", "zsófia", "zsofia", "boglárka", "lili", "mira", "lilien", "szonja", "jázmin", "jazmin", "elza", "flora", "flóra", "izabella", "kamilla", "maria", "mária", "erzsébet", "ilona", "katalin", "éva", "eva", "margit", "zsuzsanna", "julianna", "judit", "ágnes", "agnes", "anikó", "aniko", "krisztina", "beatrix", "adrienn", "andrea", "anita", "barbara", "csilla", "dorina", "diána", "diana", "edina", "enikő", "eniko", "eszter", "fanni", "gizella", "henrietta", "ildikó", "ildiko", "irén", "iren", "kinga", "klaudia", "magdolna", "melinda", "mónika", "monika", "nikolett", "nikoletta", "noémi", "noemi", "orsolya", "piroska", "réka", "reka", "rita", "sarolta", "szilvia", "tünde", "tunde", "valéria", "valeria", "viktória", "viktoria", "vivien", "zita", "zsanett", "vanda", "petra", "dorottya", "fruzsina", "szandra", "alexandra", "rebeka", "blanka", "regina", "lilla"];
+    let CLIENT_ID = localStorage.getItem('g_client_id') || '';
+    let API_KEY = localStorage.getItem('g_api_key') || '';
+    
+    const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
+    const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+
+    let gapiInited = false;
+    let gisInited = false;
+    let tokenClient;
+    let fetchedEvents = [];
+
+    const defaultMaleNames = ["bence", "máté", "levente", "david", "dávid", "dominik", "balázs", "gábor", "peter", "péter", "tamás", "zoltán", "istván", "andrás", "laszlo", "lászló", "józsef", "jános", "attila", "sándor", "milan", "milán", "adam", "ádám", "dániel", "daniel", "marcell", "krisztián", "gergő", "gergely", "bálint", "norbert", "patrik", "richárd", "richard", "olivér", "kristóf", "martin", "zalán", "áron", "aron", "kevin", "botond", "alex", "benedek", "szabolcs", "roland", "viktor"];
+    const defaultFemaleNames = ["anna", "hanna", "zoé", "zoe", "léna", "lena", "luca", "emma", "zsófia", "zsofia", "boglárka", "lili", "mira", "lilien", "szonja", "jázmin", "jazmin", "elza", "flora", "flóra", "izabella", "kamilla", "maria", "mária", "erzsébet", "ilona", "katalin", "éva", "eva"];
 
     let maleNames = JSON.parse(localStorage.getItem('maleNames')) || defaultMaleNames;
     let femaleNames = JSON.parse(localStorage.getItem('femaleNames')) || defaultFemaleNames;
     let detectedUnknownNames = [];
-    let lastFetchedEvents = null;
-
-    let tokenClient;
-    let gapiInited = false;
-    let gisInited = false;
 
     window.onload = function() {
-        document.getElementById('client_id').value = localStorage.getItem('google_client_id') || '';
-        document.getElementById('api_key').value = localStorage.getItem('google_api_key') || '';
         setupDefaultDates();
         updateNameListsUI();
+        if(CLIENT_ID) document.getElementById('client_id_input').value = CLIENT_ID;
+        if(API_KEY) document.getElementById('api_key_input').value = API_KEY;
+        checkStatus();
     };
 
     function setupDefaultDates() {
         const today = new Date();
         let start = new Date(today.getFullYear(), today.getMonth(), 11);
-        if (today.getDate() < 11) {
-            start.setMonth(start.getMonth() - 1);
-        }
+        if (today.getDate() < 11) start.setMonth(start.getMonth() - 1);
         let end = new Date(start);
         end.setMonth(end.getMonth() + 1);
-
         document.getElementById('start_date').value = start.toISOString().split('T')[0];
         document.getElementById('end_date').value = end.toISOString().split('T')[0];
     }
 
-    function saveApiKeys() {
-        localStorage.setItem('google_client_id', document.getElementById('client_id').value.trim());
-        localStorage.setItem('google_api_key', document.getElementById('api_key').value.trim());
-        alert('Kulcsok elmentve! Az oldal most újratöltődik.');
+    function saveKeys() {
+        localStorage.setItem('g_client_id', document.getElementById('client_id_input').value.trim());
+        localStorage.setItem('g_api_key', document.getElementById('api_key_input').value.trim());
+        alert('Kulcsok elmentve! Az oldal frissül.');
         location.reload();
     }
 
-    function updateNameListsUI() {
-        document.getElementById('count_male').innerText = maleNames.length;
-        document.getElementById('count_female').innerText = femaleNames.length;
-        document.getElementById('count_unknown').innerText = detectedUnknownNames.length;
-
-        document.getElementById('male_list').innerHTML = maleNames.map(name => `
-            <div class="name-item">
-                <span>${name.toUpperCase()}</span>
-                <button class="btn-danger" onclick="removeName('${name}', 'male')">Törlés</button>
-            </div>
-        `).join('');
-
-        document.getElementById('female_list').innerHTML = femaleNames.map(name => `
-            <div class="name-item">
-                <span>${name.toUpperCase()}</span>
-                <button class="btn-danger" onclick="removeName('${name}', 'female')">Törlés</button>
-            </div>
-        `).join('');
-
-        const unknownDiv = document.getElementById('unknown_list');
-        if (detectedUnknownNames.length === 0) {
-            unknownDiv.innerHTML = '<p style="text-align:center; color:#999; padding:20px; margin:0;">Nincs ismeretlen név.</p>';
-        } else {
-            unknownDiv.innerHTML = detectedUnknownNames.map(name => `
-                <div class="unknown-item">
-                    <div class="unknown-item-header">${name.toUpperCase()}</div>
-                    <div class="btn-group">
-                        <button class="btn-success" onclick="moveUnknownTo('${name}', 'male')">Férfi</button>
-                        <button style="background:#9b59b6;" onclick="moveUnknownTo('${name}', 'female')">Női</button>
-                    </div>
-                </div>
-            `).join('');
+    function checkStatus() {
+        if (!CLIENT_ID || !API_KEY) {
+            document.getElementById('status_text').innerText = "Hiányzó API kulcsok a lap alján!";
+            document.getElementById('status_text').style.background = "#f8d7da";
         }
-    }
-
-    function removeName(name, gender) {
-        if (gender === 'male') {
-            maleNames = maleNames.filter(n => n !== name);
-            localStorage.setItem('maleNames', JSON.stringify(maleNames));
-        } else {
-            femaleNames = femaleNames.filter(n => n !== name);
-            localStorage.setItem('femaleNames', JSON.stringify(femaleNames));
-        }
-        updateNameListsUI();
-    }
-
-    function moveUnknownTo(name, targetGender) {
-        if (targetGender === 'male') {
-            if (!maleNames.includes(name)) maleNames.push(name);
-            localStorage.setItem('maleNames', JSON.stringify(maleNames));
-        } else {
-            if (!femaleNames.includes(name)) femaleNames.push(name);
-            localStorage.setItem('femaleNames', JSON.stringify(femaleNames));
-        }
-        detectedUnknownNames = detectedUnknownNames.filter(n => n !== name);
-        updateNameListsUI();
-        if (lastFetchedEvents) runCalculation(lastFetchedEvents);
-    }
-
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById('tab_' + tabName).classList.add('active');
-        event.currentTarget.classList.add('active');
     }
 
     function gapiLoaded() { gapi.load('client', initializeGapiClient); }
     async function initializeGapiClient() {
-        const apiKey = localStorage.getItem('google_api_key');
-        if (apiKey) {
-            await gapi.client.init({ apiKey: apiKey, discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'] });
+        if (!API_KEY) return;
+        try {
+            await gapi.client.init({ apiKey: API_KEY, discoveryDocs: [DISCOVERY_DOC] });
             gapiInited = true;
             maybeEnableButtons();
-        }
+        } catch (e) { document.getElementById('status_text').innerText = "API Hiba: " + e.message; }
     }
+
     function gisLoaded() {
-        const clientId = localStorage.getItem('google_client_id');
-        if (clientId) {
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: clientId,
-                scope: 'https://www.googleapis.com/auth/calendar.readonly',
-                callback: '',
-            });
-            gisInited = true;
-            maybeEnableButtons();
-        }
+        if (!CLIENT_ID) return;
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: CLIENT_ID, 
+            scope: SCOPES, 
+            callback: '',
+            hint: 'levi.paszi@gmail.com'
+        });
+        gisInited = true;
+        maybeEnableButtons();
     }
+
     function maybeEnableButtons() {
         if (gapiInited && gisInited) {
-            document.getElementById('status_text').innerText = "Google kapcsolat kész. Nyomj a Bejelentkezésre!";
+            document.getElementById('status_text').innerText = "Google kapcsolat kész. Jelentkezz be!";
+            document.getElementById('status_text').style.background = "#d4edda";
+            document.getElementById('auth_button').style.display = 'block';
         }
     }
 
@@ -398,10 +192,10 @@
         tokenClient.callback = async (resp) => {
             if (resp.error !== undefined) throw (resp);
             document.getElementById('auth_button').style.display = 'none';
-            document.getElementById('signout_button').style.display = 'inline-block';
-            document.getElementById('calc_btn').style.display = 'block';
-            document.getElementById('status_text').innerText = "Bejelentkezve! Naptár szinkronizálása...";
-            fetchCalendarEvents();
+            document.getElementById('signout_button').style.display = 'block';
+            document.getElementById('refresh_button').style.display = 'block';
+            document.getElementById('status_text').innerText = "Sikeres belépés! Naptár letöltése...";
+            await listUpcomingEvents();
         };
         if (gapi.client.getToken() === null) {
             tokenClient.requestAccessToken({prompt: 'consent'});
@@ -415,58 +209,46 @@
         if (token !== null) {
             google.accounts.oauth2.revokeToken(token.access_token);
             gapi.client.setToken(null);
-            document.getElementById('auth_button').style.display = 'inline-block';
+            document.getElementById('auth_button').style.display = 'block';
             document.getElementById('signout_button').style.display = 'none';
-            document.getElementById('calc_btn').style.display = 'none';
+            document.getElementById('refresh_button').style.display = 'none';
             document.getElementById('status_text').innerText = "Kijelentkezve.";
+            document.getElementById('total_revenue').innerText = "0 Ft";
         }
     }
 
-    async function fetchCalendarEvents() {
-        document.getElementById('status_text').innerText = "Naptár letöltése folyamatban...";
-        const startIso = new Date(document.getElementById('start_date').value).toISOString();
-        const endIso = new Date(document.getElementById('end_date').value).toISOString();
-
+    async function listUpcomingEvents() {
         try {
+            const startISO = new Date(document.getElementById('start_date').value).toISOString();
+            const endISO = new Date(document.getElementById('end_date').value).toISOString();
+            
             const response = await gapi.client.calendar.events.list({
-                'calendarId': 'primary',
-                'timeMin': startIso,
-                'timeMax': endIso,
-                'showDeleted': false,
-                'singleEvents': true,
-                'orderBy': 'startTime'
+                calendarId: 'primary', timeMin: startISO, timeMax: endISO,
+                showDeleted: false, singleEvents: true, maxResults: 250, orderBy: 'startTime',
             });
-            const events = response.result.items;
-            lastFetchedEvents = events;
-            runCalculation(events);
-        } catch (err) {
-            document.getElementById('status_text').innerText = "Hiba történt: " + err.message;
-        }
+            
+            fetchedEvents = response.result.items || [];
+            document.getElementById('status_text').innerText = "Naptár sikeresen szinkronizálva!";
+            runCalculation(fetchedEvents);
+        } catch (err) { document.getElementById('status_text').innerText = "Hiba: " + err.message; }
     }
+
+    function triggerRecalc() { if(fetchedEvents.length > 0) runCalculation(fetchedEvents); }
 
     function runCalculation(events) {
         const priceMale = parseInt(document.getElementById('price_male').value) || 0;
         const priceFemale = parseInt(document.getElementById('price_female').value) || 0;
-        
         const now = new Date();
-        let total = 0;
-        let maleCount = 0;
-        let femaleCount = 0;
+
+        let total = 0, maleCount = 0, femaleCount = 0;
         let unknownFound = new Set();
 
-        if (!events || events.length === 0) {
-            document.getElementById('total_revenue').innerText = "0 Ft";
-            document.getElementById('status_text').innerText = "Nincsenek események a kijelölt időszakban.";
-            return;
-        }
-
         events.forEach(event => {
-            const eventStart = new Date(event.start.dateTime || event.start.date);
+            const eStart = new Date(event.start.dateTime || event.start.date);
             
-            if (eventStart >= now) {
+            // Csak a mai naptól hátralévő eseményeket számoljuk
+            if (eStart >= now) {
                 const title = (event.summary || "").toLowerCase().trim();
-                if (!title) return;
-
                 const words = title.replace(/[0-9.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ").split(/\s+/);
                 
                 let foundGender = null;
@@ -474,39 +256,67 @@
 
                 for (let word of words) {
                     if (word.length < 2) continue;
-                    
-                    if (maleNames.includes(word)) {
-                        foundGender = 'male';
-                        break;
-                    } else if (femaleNames.includes(word)) {
-                        foundGender = 'female';
-                        break;
-                    } else {
-                        if (/^[a-záéíóöőúüű]+$/.test(word)) {
-                            recognizedWord = word;
-                        }
-                    }
+                    if (maleNames.includes(word)) { foundGender = 'male'; break; }
+                    else if (femaleNames.includes(word)) { foundGender = 'female'; break; }
+                    else if (/^[a-záéíóöőúüű]+$/.test(word)) { recognizedWord = word; }
                 }
 
-                if (foundGender === 'male') {
-                    total += priceMale;
-                    maleCount++;
-                } else if (foundGender === 'female') {
-                    total += priceFemale;
-                    femaleCount++;
-                } else if (recognizedWord && !maleNames.includes(recognizedWord) && !femaleNames.includes(recognizedWord)) {
+                if (foundGender === 'male') { total += priceMale; maleCount++; }
+                else if (foundGender === 'female') { total += priceFemale; femaleCount++; }
+                else if (recognizedWord && !maleNames.includes(recognizedWord) && !femaleNames.includes(recognizedWord)) {
                     unknownFound.add(recognizedWord);
                 }
             }
         });
 
         detectedUnknownNames = Array.from(unknownFound);
-        
         document.getElementById('total_revenue').innerText = total.toLocaleString('hu-HU') + " Ft";
-        document.getElementById('status_text').innerText = "Frissítve a mai naptól hátralévő időpontok alapján!";
         document.getElementById('stats_summary').innerText = `${maleCount} Férfi (${maleCount * priceMale} Ft), ${femaleCount} Női (${femaleCount * priceFemale} Ft)`;
-        
         updateNameListsUI();
+    }
+
+    function updateNameListsUI() {
+        document.getElementById('count_male').innerText = maleNames.length;
+        document.getElementById('count_female').innerText = femaleNames.length;
+        document.getElementById('count_unknown').innerText = detectedUnknownNames.length;
+
+        document.getElementById('male_list').innerHTML = maleNames.map(name => `<div class="name-item"><span>${name.toUpperCase()}</span><button class="btn-danger" onclick="removeName('${name}', 'male')">X</button></div>`).join('');
+        document.getElementById('female_list').innerHTML = femaleNames.map(name => `<div class="name-item"><span>${name.toUpperCase()}</span><button class="btn-danger" onclick="removeName('${name}', 'female')">X</button></div>`).join('');
+
+        const unknownDiv = document.getElementById('unknown_list');
+        if (detectedUnknownNames.length === 0) {
+            unknownDiv.innerHTML = '<p style="text-align:center; color:#999; padding:20px; margin:0;">Nincs ismeretlen név.</p>';
+        } else {
+            unknownDiv.innerHTML = detectedUnknownNames.map(name => `
+                <div class="unknown-item">
+                    <div style="font-weight:bold;text-align:center;margin-bottom:5px;">${name.toUpperCase()}</div>
+                    <div class="btn-group">
+                        <button class="btn-success" onclick="moveUnknownTo('${name}', 'male')">Férfi</button>
+                        <button style="background:#9b59b6;color:white;border:none;border-radius:6px;font-weight:bold;" onclick="moveUnknownTo('${name}', 'female')">Női</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    function removeName(name, gender) {
+        if (gender === 'male') { maleNames = maleNames.filter(n => n !== name); localStorage.setItem('maleNames', JSON.stringify(maleNames)); }
+        else { femaleNames = femaleNames.filter(n => n !== name); localStorage.setItem('femaleNames', JSON.stringify(femaleNames)); }
+        updateNameListsUI(); triggerRecalc();
+    }
+
+    function moveUnknownTo(name, targetGender) {
+        if (targetGender === 'male') { if (!maleNames.includes(name)) maleNames.push(name); localStorage.setItem('maleNames', JSON.stringify(maleNames)); }
+        else { if (!femaleNames.includes(name)) femaleNames.push(name); localStorage.setItem('femaleNames', JSON.stringify(femaleNames)); }
+        detectedUnknownNames = detectedUnknownNames.filter(n => n !== name);
+        updateNameListsUI(); triggerRecalc();
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab_' + tabName).classList.add('active');
+        event.currentTarget.classList.add('active');
     }
 </script>
 </body>
