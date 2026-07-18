@@ -197,8 +197,10 @@
             document.getElementById('status_text').innerText = "Sikeres belépés! Naptár letöltése...";
             await listUpcomingEvents();
         };
+        
+        // Csendes bejelentkezés beállítása ('none'), hogy megjegyezze az engedélyt
         if (gapi.client.getToken() === null) {
-            tokenClient.requestAccessToken({prompt: 'consent'});
+            tokenClient.requestAccessToken({prompt: 'none'});
         } else {
             tokenClient.requestAccessToken({prompt: ''});
         }
