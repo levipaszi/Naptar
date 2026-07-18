@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gyors Naptár Bevétel Tervező</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; --bg: #f8f9fa; --card: #ffffff; --text: #333333; }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; }
+        .container { max-width: 100%; margin: 0 auto; }
+        header { background-color: var(--primary); color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; }
+        .card { background: var(--card); padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        h2 { margin-top: 0; font-size: 1.2rem; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 8px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem; }
+        input[type="number"], input[type="date"], input[type="file"] { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; background: #fff; }
+        button { background-color: var(--accent); color: white; border: none; padding: 14px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
+        button.btn-success { background-color: #2ecc71; }
+        button.btn-danger { background-color: #e74c3c; }
+        .result-box { font-size: 28px; font-weight: bold; color: #2c3e50; background: #e8f4f8; padding: 20px; border-radius: 6px; text-align: center; margin-top: 10px; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 12px; overflow-x: auto; }
+        .tab-btn { background: #e0e0e0; color: #333; padding: 10px 12px; font-size: 14px; flex: 1; white-space: nowrap; border-radius: 6px; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .name-list-container { max-height: 250px; overflow-y: auto; border: 1px solid #ddd; padding: 8px; border-radius: 6px; background: #fafafa; }
+        .name-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid #eee; font-size: 15px; }
+        .name-item button { width: auto; padding: 6px 12px; font-size: 12px; }
+        .unknown-item { background: #fff3cd; padding: 10px; margin-bottom: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 8px; }
+        .btn-group { display: flex; gap: 8px; }
+        .btn-group button { flex: 1; padding: 10px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1 style="margin:0; font-size: 1.5rem;">Fájlalapú Naptár Tervező</h1>
+    </header>
+
+    <!-- FÁJL BEOLVASÁS -->
+    <div class="card">
+        <h2>1. Lépés: Naptár fájl betöltése</h2>
+        <div class="form-group">
+            <label for="file_input">Vlaszd ki a letöltött .ics fájlt:</label>
+            <input type="file" id="file_input" accept=".ics" onchange="loadCalendarFile(event)">
+        </div>
+        <p id="status_text" style="font-size:14px; color:#555; text-align:center; margin:5px 0 0 0;">Töltsd be a fájlt a számításhoz.</p>
+    </div>
+
+    <!-- EREDMÉNY -->
+    <div class="card">
+        <h2>Várható Hátralévő Bevétel</h2>
+        <div class="result-box" id="total_revenue">0 Ft</div>
+        <div style="margin-top: 10px; font-size: 14px; color: #666; text-align: center;" id="stats_summary"></div>
+    </div>
+
+    <!-- BEÁLLÍTÁSOK -->
+    <div class="card">
+        <h2>Időszak & Árak Beállítása</h2>
+        <div class="form-group">
+            <label for="start_date">Kezdő nap:</label>
+            <input type="date" id="start_date" onchange="triggerRecalc()">
+        </div>
+        <div class="form-group">
+            <label for="end_date">Záró nap:</label>
+            <input type="date" id="end_date" onchange="triggerRecalc()">
+        </div>
+        <div class="form-group">
+            <label for="price_male">Férfi Ár (Ft):</label>
+            <input type="number" id="price_male" value="4000" onchange="triggerRecalc()">
+        </div>
+        <div class="form-group">
+            <label for="price_female">Női Ár (Ft):</label>
+            <input type="number" id="price_female" value="7000" onchange="triggerRecalc()">
+        </div>
+    </div>
+
+    <!-- NEVEK MENEDZSELÉSE -->
+    <div class="card">
+        <h2>Név Adatbázis Kezelő</h2>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('unknown')">Ismeretlenek (<span id="count_unknown">0</span>)</button>
+            <button class="tab-btn" onclick="switchTab('male')">Férfiak (<span id="count_male">0</span>)</button>
+            <button class="tab-btn" onclick="switchTab('female')">Nők (<span id="count_female">0</span>)</button>
+        </div>
+
+        <div id="tab_unknown" class="tab-content active"><div id="unknown_list" class="name-list-container"></div></div>
+        <div id="tab_male" class="tab-content"><div id="male_list" class="name-list-container"></div></div>
+        <div id="tab_female" class="tab-content"><div id="female_list" class="name-list-container"></div></div>
+    </div>
+</div>
+
+<script>
+    const defaultMaleNames = ["bence", "máté", "levente", "david", "dávid", "dominik", "balázs", "gábor", "peter", "péter", "tamás", "zoltán", "istván", "andrás", "laszlo", "lászló", "józsef", "jános", "attila", "sándor", "milan", "milán", "adam", "ádám", "dániel", "daniel", "marcell", "krisztián", "gergő", "gergely", "bálint", "norbert", "patrik", "richárd", "richard", "olivér", "kristóf", "martin", "zalán", "áron", "aron", "kevin", "botond", "alex", "benedek", "szabolcs", "roland", "viktor"];
+    const defaultFemaleNames = ["anna", "hanna", "zoé", "zoe", "léna", "lena", "luca", "emma", "zsófia", "zsofia", "boglárka", "lili", "mira", "lilien", "szonja", "jázmin", "jazmin", "elza", "flora", "flóra", "izabella", "kamilla", "maria", "mária", "erzsébet", "ilona", "katalin", "éva", "eva"];
+
+    let maleNames = JSON.parse(localStorage.getItem('maleNames')) || defaultMaleNames;
+    let femaleNames = JSON.parse(localStorage.getItem('femaleNames')) || defaultFemaleNames;
+    let detectedUnknownNames = [];
+    let parsedEvents = [];
+
+    window.onload = function() {
+        setupDefaultDates();
+        updateNameListsUI();
+    };
+
+    function setupDefaultDates() {
+        const today = new Date();
+        let start = new Date(today.getFullYear(), today.getMonth(), 11);
+        if (today.getDate() < 11) start.setMonth(start.getMonth() - 1);
+        let end = new Date(start);
+        end.setMonth(end.getMonth() + 1);
+
+        document.getElementById('start_date').value = start.toISOString().split('T')[0];
+        document.getElementById('end_date').value = end.toISOString().split('T')[0];
+    }
+
+    function loadCalendarFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            parseICS(e.target.result);
+            triggerRecalc();
+            document.getElementById('status_text').innerText = "Fájl sikeresen betöltve!";
+        };
+        reader.readAsText(file);
+    }
+
+    function parseICS(data) {
+        parsedEvents = [];
+        const lines = data.split(/\r?\n/);
+        let currentEvent = null;
+
+        for (let line of lines) {
+            if (line.startsWith("BEGIN:VEVENT")) {
+                currentEvent = {};
+            } else if (line.startsWith("END:VEVENT")) {
+                if (currentEvent && currentEvent.summary && currentEvent.start) {
+                    parsedEvents.push(currentEvent);
+                }
+                currentEvent = null;
+            } else if (currentEvent) {
+                if (line.startsWith("SUMMARY:")) {
+                    currentEvent.summary = line.substring(8);
+                } else if (line.startsWith("DTSTART:")) {
+                    currentEvent.start = parseICSDate(line.substring(8));
+                } else if (line.startsWith("DTSTART;VALUE=DATE:")) {
+                    currentEvent.start = parseICSDate(line.substring(19));
+                }
+            }
+        }
+    }
+
+    function parseICSDate(icsStr) {
+        // Formátumok kelezése: YYYYMMDDTHMMSSZ vagy YYYYMMDD
+        const y = icsStr.substring(0, 4);
+        const m = parseInt(icsStr.substring(4, 6)) - 1;
+        const d = icsStr.substring(6, 8);
+        if (icsStr.includes("T")) {
+            const h = icsStr.substring(9, 11);
+            const min = icsStr.substring(11, 13);
+            return new Date(Date.UTC(y, m, d, h, min));
+        }
+        return new Date(y, m, d);
+    }
+
+    function triggerRecalc() {
+        if (parsedEvents.length > 0) runCalculation(parsedEvents);
+    }
+
+    function runCalculation(events) {
+        const priceMale = parseInt(document.getElementById('price_male').value) || 0;
+        const priceFemale = parseInt(document.getElementById('price_female').value) || 0;
+        const startDate = new Date(document.getElementById('start_date').value);
+        const endDate = new Date(document.getElementById('end_date').value);
+        const now = new Date();
+
+        let total = 0, maleCount = 0, femaleCount = 0;
+        let unknownFound = new Set();
+
+        events.forEach(event => {
+            const eStart = new Date(event.start);
+            
+            // Csak a megadott intervallumba eső ÉS a mai naptól hátralévő napokat nézzük
+            if (eStart >= startDate && eStart <= endDate && eStart >= now) {
+                const title = event.summary.toLowerCase().trim();
+                const words = title.replace(/[0-9.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ").split(/\s+/);
+                
+                let foundGender = null;
+                let recognizedWord = "";
+
+                for (let word of words) {
+                    if (word.length < 2) continue;
+                    if (maleNames.includes(word)) { foundGender = 'male'; break; }
+                    else if (femaleNames.includes(word)) { foundGender = 'female'; break; }
+                    else if (/^[a-záéíóöőúüű]+$/.test(word)) { recognizedWord = word; }
+                }
+
+                if (foundGender === 'male') { total += priceMale; maleCount++; }
+                else if (foundGender === 'female') { total += priceFemale; femaleCount++; }
+                else if (recognizedWord && !maleNames.includes(recognizedWord) && !femaleNames.includes(recognizedWord)) {
+                    unknownFound.add(recognizedWord);
+                }
+            }
+        });
+
+        detectedUnknownNames = Array.from(unknownFound);
+        document.getElementById('total_revenue').innerText = total.toLocaleString('hu-HU') + " Ft";
+        document.getElementById('stats_summary').innerText = `${maleCount} Férfi (${maleCount * priceMale} Ft), ${femaleCount} Női (${femaleCount * priceFemale} Ft)`;
+        updateNameListsUI();
+    }
+
+    function updateNameListsUI() {
+        document.getElementById('count_male').innerText = maleNames.length;
+        document.getElementById('count_female').innerText = femaleNames.length;
+        document.getElementById('count_unknown').innerText = detectedUnknownNames.length;
+
+        document.getElementById('male_list').innerHTML = maleNames.map(name => `<div class="name-item"><span>${name.toUpperCase()}</span><button class="btn-danger" onclick="removeName('${name}', 'male')">X</button></div>`).join('');
+        document.getElementById('female_list').innerHTML = femaleNames.map(name => `<div class="name-item"><span>${name.toUpperCase()}</span><button class="btn-danger" onclick="removeName('${name}', 'female')">X</button></div>`).join('');
+
+        const unknownDiv = document.getElementById('unknown_list');
+        if (detectedUnknownNames.length === 0) {
+            unknownDiv.innerHTML = '<p style="text-align:center; color:#999; padding:20px; margin:0;">Nincs ismeretlen név.</p>';
+        } else {
+            unknownDiv.innerHTML = detectedUnknownNames.map(name => `
+                <div class="unknown-item">
+                    <div style="font-weight:bold;text-align:center;margin-bottom:5px;">${name.toUpperCase()}</div>
+                    <div class="btn-group">
+                        <button class="btn-success" onclick="moveUnknownTo('${name}', 'male')">Férfi</button>
+                        <button style="background:#9b59b6;" onclick="moveUnknownTo('${name}', 'female')">Női</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    function removeName(name, gender) {
+        if (gender === 'male') { maleNames = maleNames.filter(n => n !== name); localStorage.setItem('maleNames', JSON.stringify(maleNames)); }
+        else { femaleNames = femaleNames.filter(n => n !== name); localStorage.setItem('femaleNames', JSON.stringify(femaleNames)); }
+        updateNameListsUI(); triggerRecalc();
+    }
+
+    function moveUnknownTo(name, targetGender) {
+        if (targetGender === 'male') { if (!maleNames.includes(name)) maleNames.push(name); localStorage.setItem('maleNames', JSON.stringify(maleNames)); }
+        else { if (!femaleNames.includes(name)) femaleNames.push(name); localStorage.setItem('femaleNames', JSON.stringify(femaleNames)); }
+        detectedUnknownNames = detectedUnknownNames.filter(n => n !== name);
+        updateNameListsUI(); triggerRecalc();
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab_' + tabName).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+</script>
+</body>
+</html>
